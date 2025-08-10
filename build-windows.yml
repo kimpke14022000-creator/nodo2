@@ -1,0 +1,41 @@
+name: Build Windows executables
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies (electron app)
+        working-directory: ./electron-app
+        run: npm install
+
+      - name: Build electron app (Windows x64)
+        working-directory: ./electron-app
+        run: npm run build
+
+      - name: Install dependencies (pkg app)
+        working-directory: ./pkg-app
+        run: npm install
+
+      - name: Build pkg executable
+        working-directory: ./pkg-app
+        run: npm run build
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-build
+          path: |
+            electron-app/dist
+            pkg-app/dist
